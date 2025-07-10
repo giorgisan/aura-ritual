@@ -6,6 +6,11 @@ export default async function handler(req, res) {
 
   const { mood, timeOfDay, emotion, need } = req.body;
 
+  if (!process.env.OPENAI_API_KEY) {
+    console.error('Missing OPENAI_API_KEY');
+    return res.status(500).json({ error: 'Missing OpenAI API Key' });
+  }
+
   const prompt = `Uporabnik se počuti: ${mood}.
 Čas dneva: ${timeOfDay}.
 Čustveno stanje: ${emotion}.
@@ -18,19 +23,29 @@ Predlagaj:
 
 Odgovarjaj nežno in poetično, z občutkom.`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.85
-    })
-  });
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.85
+      })
+    });
 
-  const data = await response.json();
-  res.status(200).json({ result: data.choices[0].message.content });
+    const data = await response.json();
+    if (!data.choices || !data.choices[0]) {
+      console.error('Invalid API response', data);
+      return res.status(500).json({ error: 'Invalid response from OpenAI' });
+    }
+
+    return res.status(200).json({ result: data.choices[0].message.content });
+  } catch (error) {
+    console.error('API Error:', error);
+    return res.status(500).json({ error: 'Failed to fetch from OpenAI' });
+  }
 }

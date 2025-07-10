@@ -18,7 +18,8 @@ export default function Home() {
       body: JSON.stringify({ mood, timeOfDay, emotion, need })
     });
     const data = await res.json();
-    setResponse(data.result);
+    if (data.result) setResponse(data.result);
+    else setResponse("Napaka: " + (data.error || "neznana")); 
     setLoading(false);
   }
 
