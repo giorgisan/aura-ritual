@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -31,19 +30,19 @@ Odgovarjaj nežno in poetično, z občutkom.`;
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-3.5-turbo', // ← POPRAVEK TUKAJ
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.85
       })
     });
 
     const data = await response.json();
-    console.log('OpenAI raw response:', JSON.stringify(data, null, 2));
 
-    // Return full response for debug purposes
-    return res.status(200).json({ raw: data });
-  } catch (error) {
-    console.error('API Error:', error);
-    return res.status(500).json({ error: 'Failed to fetch from OpenAI', details: error.message });
-  }
-}
+    if (data.error) {
+      console.error('OpenAI API returned an error:', data.error);
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    const message = data.choices?.[0]?.message?.content;
+    if (!message) {
+      return res.status(500).json({ error: '
