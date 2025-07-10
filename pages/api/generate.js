@@ -20,7 +20,7 @@ Predlagaj:
 2. Osebno aktivnost
 3. Večerni ritual
 
-Odgovarjaj nežno in poetično, z občutkom.`;
+Odgovarjaj nežno in poetično, z občutkom.`
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -30,7 +30,7 @@ Odgovarjaj nežno in poetično, z občutkom.`;
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo', // ← POPRAVEK TUKAJ
+        model: 'gpt-4o', // ← posodobljen model
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.85
       })
@@ -39,10 +39,3 @@ Odgovarjaj nežno in poetično, z občutkom.`;
     const data = await response.json();
 
     if (data.error) {
-      console.error('OpenAI API returned an error:', data.error);
-      return res.status(500).json({ error: data.error.message });
-    }
-
-    const message = data.choices?.[0]?.message?.content;
-    if (!message) {
-      return res.status(500).json({ error: '
