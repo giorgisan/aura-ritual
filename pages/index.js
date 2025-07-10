@@ -1,5 +1,5 @@
 // pages/index.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
@@ -7,6 +7,7 @@ export default function Home() {
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,6 +17,7 @@ export default function Home() {
     e.preventDefault();
     setResult('');
     setError('');
+    setShowResult(false);
     setLoading(true);
 
     try {
@@ -28,6 +30,7 @@ export default function Home() {
       const data = await res.json();
       if (res.ok && data.text) {
         setResult(data.text);
+        setTimeout(() => setShowResult(true), 100); // trigger fade-in
       } else {
         setError(`Napaka: ${data?.error?.message || 'neznana'}`);
       }
@@ -35,6 +38,17 @@ export default function Home() {
       setError(`Napaka: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const copyQuote = () => {
+    const match = result.match(/Navdihujoč citat:\s*(.*?)\s*[-–]\s*(.+)/s);
+    if (match) {
+      const text = `"${match[1].trim()}" – ${match[2].trim()}`;
+      navigator.clipboard.writeText(text);
+      alert('Citat kopiran!');
+    } else {
+      alert('Citat ni bil prepoznan.');
     }
   };
 
@@ -47,6 +61,11 @@ export default function Home() {
             0% { transform: scale(1); opacity: 0.6; }
             50% { transform: scale(1.08); opacity: 1; }
             100% { transform: scale(1); opacity: 0.6; }
+          }
+
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
           }
 
           body {
@@ -137,6 +156,26 @@ export default function Home() {
             color: #9dd4ff;
             text-decoration: underline;
           }
+
+          .fade-in {
+            animation: fadeIn 0.8s ease-out;
+          }
+
+          .copy-btn {
+            margin-top: 1rem;
+            background: transparent;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+          }
+
+          .copy-btn:hover {
+            background: #222;
+          }
         `}</style>
       </Head>
 
@@ -164,13 +203,18 @@ export default function Home() {
 
         {loading && <div className="loader"></div>}
 
-        {result && (
-          <div
-            className="result"
-            dangerouslySetInnerHTML={{
-              __html: result.replace(/\n/g, '<br />'),
-            }}
-          />
+        {showResult && result && (
+          <>
+            <div
+              className="result fade-in"
+              dangerouslySetInnerHTML={{
+                __html: result.replace(/\n/g, '<br />'),
+              }}
+            />
+            <button className="copy-btn" onClick={copyQuote}>
+              Kopiraj citat
+            </button>
+          </>
         )}
 
         {error && <div className="error">{error}</div>}
