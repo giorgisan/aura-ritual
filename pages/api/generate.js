@@ -26,7 +26,7 @@ Strukturo odgovora zapiši neposredno kot HTML. Naslove označi z <h2> in dodaj 
 - h2 za prakso: class="practice"
 - h2 za citat: class="quote"
 
-Besedila naj bodo nežna, poetična, brez oznak **, brez številk. Vključi prazno vrstico med odstavki.`;
+Besedila naj bodo nežna, introspektivna, brez oznak **, brez številk. Vključi prazno vrstico med odstavki.`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
