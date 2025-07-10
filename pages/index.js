@@ -1,44 +1,52 @@
+// pages/index.js
 import { useState } from 'react';
 
 export default function Home() {
-  const [mood, setMood] = useState('');
-  const [timeOfDay, setTimeOfDay] = useState('');
-  const [emotion, setEmotion] = useState('');
-  const [need, setNeed] = useState('');
-  const [result, setResult] = useState(null);
+  const [form, setForm] = useState({ mood: '', timeOfDay: '', emotion: '', need: '' });
+  const [result, setResult] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setResult('');
+    setError('');
+
     try {
-      const response = await fetch('/api/generate', {
+      const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mood, timeOfDay, emotion, need })
+        body: JSON.stringify(form),
       });
-      const data = await response.json();
-      if (data.raw?.choices?.[0]?.message?.content) {
+
+      const data = await res.json();
+
+      if (res.ok && data.raw?.choices?.[0]?.message?.content) {
         setResult(data.raw.choices[0].message.content);
       } else {
-        setResult('Napaka: neznana');
-        console.log('Raw OpenAI response:', data.raw || data);
+        setError(`Napaka: ${data?.error?.message || 'neznana'}`);
       }
     } catch (err) {
-      console.error(err);
-      setResult('Napaka: strežniška napaka');
+      setError(`Napaka: ${err.message}`);
     }
   };
 
   return (
-    <main style={{ padding: 20, fontFamily: 'sans-serif' }}>
-      <h1>Aura Ritual</h1>
-      <form onSubmit={handleSubmit}>
-        <input placeholder="Kako se počutiš?" value={mood} onChange={(e) => setMood(e.target.value)} /><br />
-        <input placeholder="Čas dneva" value={timeOfDay} onChange={(e) => setTimeOfDay(e.target.value)} /><br />
-        <input placeholder="Čustveno stanje" value={emotion} onChange={(e) => setEmotion(e.target.value)} /><br />
-        <input placeholder="Kaj potrebuješ?" value={need} onChange={(e) => setNeed(e.target.value)} /><br />
-        <button type="submit">Pridobi ritual</button>
+    <main style={{ padding: '2rem', fontFamily: 'sans-serif', backgroundColor: '#fafafa', minHeight: '100vh' }}>
+      <h1 style={{ fontSize: '2.5rem', fontWeight: '600' }}>Aura Ritual</h1>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+        <input name="mood" placeholder="Kako se počutiš?" onChange={handleChange} required />
+        <input name="timeOfDay" placeholder="Čas dneva" onChange={handleChange} required />
+        <input name="emotion" placeholder="Čustveno stanje" onChange={handleChange} required />
+        <input name="need" placeholder="Kaj potrebuješ?" onChange={handleChange} required />
+        <button type="submit" style={{ backgroundColor: '#111', color: '#fff', padding: '0.75rem', border: 'none' }}>Pridobi ritual</button>
       </form>
-      <p>{result}</p>
+
+      {result && <div style={{ marginTop: '2rem', whiteSpace: 'pre-line', fontStyle: 'italic' }}>{result}</div>}
+      {error && <div style={{ marginTop: '2rem', color: '#c00' }}>{error}</div>}
     </main>
   );
 }
