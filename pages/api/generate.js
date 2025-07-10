@@ -38,14 +38,15 @@ Odgovarjaj nežno in poetično, z občutkom.`;
     });
 
     const data = await response.json();
+    console.log('OpenAI response:', JSON.stringify(data, null, 2));
+
     if (!data.choices || !data.choices[0]) {
-      console.error('Invalid API response', data);
-      return res.status(500).json({ error: 'Invalid response from OpenAI' });
+      return res.status(500).json({ error: 'Invalid response from OpenAI', raw: data });
     }
 
     return res.status(200).json({ result: data.choices[0].message.content });
   } catch (error) {
     console.error('API Error:', error);
-    return res.status(500).json({ error: 'Failed to fetch from OpenAI' });
+    return res.status(500).json({ error: 'Failed to fetch from OpenAI', details: error.message });
   }
 }
