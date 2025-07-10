@@ -14,11 +14,12 @@ export default async function handler(req, res) {
 Njegova namera za današnji trenutek je: ${intent}.
 
 Na osnovi tega predlagaj:
-1. Soundtrack dneva (z imenom skladbe in YouTube povezavo)
+1. Soundtrack dneva (ime skladbe, izvajalec in YouTube povezava)
 2. Kratko osebno prakso (npr. dihalna vaja, afirmacija, gibanje)
 3. Navdihujoč citat (ki naj izraža počutje ali namero)
 
-Odgovarjaj nežno in poetično, z občutkom.`
+Odgovarjaj nežno, poetično, brez odebeljenih znakov in v strukturirani obliki.
+YouTube povezavo dodaj v obliki: ([link](https://...)) na koncu vrstice s skladbo.`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -41,7 +42,8 @@ Odgovarjaj nežno in poetično, z občutkom.`
       return res.status(500).json({ error: data.error });
     }
 
-    return res.status(200).json({ raw: data });
+    const rawText = data.choices?.[0]?.message?.content || 'Ni odgovora.';
+    return res.status(200).json({ text: rawText });
   } catch (error) {
     console.error('API Error:', error);
     return res.status(500).json({ error: 'Failed to fetch from OpenAI', details: error.message });
