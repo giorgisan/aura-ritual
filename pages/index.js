@@ -1,5 +1,5 @@
 // pages/index.js
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
 
 export default function Home() {
@@ -7,7 +7,6 @@ export default function Home() {
   const [result, setResult] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showResult, setShowResult] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +16,6 @@ export default function Home() {
     e.preventDefault();
     setResult('');
     setError('');
-    setShowResult(false);
     setLoading(true);
 
     try {
@@ -30,7 +28,6 @@ export default function Home() {
       const data = await res.json();
       if (res.ok && data.text) {
         setResult(data.text);
-        setTimeout(() => setShowResult(true), 100); // trigger fade-in
       } else {
         setError(`Napaka: ${data?.error?.message || 'neznana'}`);
       }
@@ -42,9 +39,9 @@ export default function Home() {
   };
 
   const copyQuote = () => {
-    const match = result.match(/Navdihujoč citat:\s*(.*?)\s*[-–]\s*(.+)/s);
+    const match = result.match(/<h2 class="quote">.*?<\/h2>\s*<p>(.*?)<\/p>/s);
     if (match) {
-      const text = `"${match[1].trim()}" – ${match[2].trim()}`;
+      const text = match[1].replace(/<[^>]*>/g, '').trim();
       navigator.clipboard.writeText(text);
       alert('Citat kopiran!');
     } else {
@@ -73,12 +70,18 @@ export default function Home() {
             font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             background-color: #111;
             color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding-top: 5vh;
+          }
+
+          main {
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            justify-content: flex-start;
-            padding-top: 5vh;
+            width: 100%;
+            padding: 1rem;
           }
 
           h1 {
@@ -140,16 +143,12 @@ export default function Home() {
             margin: 3rem auto;
           }
 
-          .result, .error {
+          .result {
             margin-top: 2rem;
-            max-width: 600px;
-            line-height: 1.6;
+            max-width: 700px;
             font-size: 1.05rem;
-            white-space: pre-line;
-          }
-
-          .error {
-            color: #f55;
+            line-height: 1.65;
+            animation: fadeIn 0.9s ease-out;
           }
 
           .result a {
@@ -157,12 +156,26 @@ export default function Home() {
             text-decoration: underline;
           }
 
-          .fade-in {
-            animation: fadeIn 0.8s ease-out;
+          .soundtrack {
+            color: #aad8ff;
+            text-align: center;
+            margin-top: 2rem;
+          }
+
+          .practice {
+            color: #b5fdd1;
+            text-align: center;
+            margin-top: 2.5rem;
+          }
+
+          .quote {
+            color: #ffd1f7;
+            text-align: center;
+            margin-top: 2.5rem;
           }
 
           .copy-btn {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             background: transparent;
             border: 1px solid #555;
             color: #ccc;
@@ -175,6 +188,11 @@ export default function Home() {
 
           .copy-btn:hover {
             background: #222;
+          }
+
+          .error {
+            color: #f55;
+            margin-top: 2rem;
           }
         `}</style>
       </Head>
@@ -203,22 +221,4 @@ export default function Home() {
 
         {loading && <div className="loader"></div>}
 
-        {showResult && result && (
-          <>
-            <div
-              className="result fade-in"
-              dangerouslySetInnerHTML={{
-                __html: result.replace(/\n/g, '<br />'),
-              }}
-            />
-            <button className="copy-btn" onClick={copyQuote}>
-              Kopiraj citat
-            </button>
-          </>
-        )}
-
-        {error && <div className="error">{error}</div>}
-      </main>
-    </>
-  );
-}
+        {result &
