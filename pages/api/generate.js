@@ -49,7 +49,11 @@ Besedila naj bodo nežna, introspektivna, brez oznak **, brez številk. Vključi
       return res.status(500).json({ error: data.error });
     }
 
-    const html = data.choices?.[0]?.message?.content || 'Ni odgovora.';
+    let html = data.choices?.[0]?.message?.content || 'Ni odgovora.';
+
+    // Odstrani ```html in ``` če obstajata
+    html = html.replace(/^```html\s*/i, '').replace(/```$/, '').trim();
+
     return res.status(200).json({ text: html });
   } catch (error) {
     console.error('API Error:', error);
