@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { mood, timeOfDay, emotion, need } = req.body;
+  const { mood, intent } = req.body;
 
   if (!process.env.OPENAI_API_KEY) {
     console.error('Missing OPENAI_API_KEY');
@@ -11,16 +11,14 @@ export default async function handler(req, res) {
   }
 
   const prompt = `Uporabnik se počuti: ${mood}.
-Čas dneva: ${timeOfDay}.
-Čustveno stanje: ${emotion}.
-Potrebuje: ${need}.
+Njegova namera za današnji trenutek je: ${intent}.
 
-Predlagaj:
-1. Soundtrack dneva
-2. Osebno aktivnost
-3. Večerni ritual
+Na osnovi tega predlagaj:
+1. Soundtrack dneva (z imenom skladbe in YouTube povezavo)
+2. Kratko osebno prakso (npr. dihalna vaja, afirmacija, gibanje)
+3. Navdihujoč citat (ki naj izraža počutje ali namero)
 
-Odgovarjaj nežno in poetično, z občutkom.`;
+Odgovarjaj nežno in poetično, z občutkom.`
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
