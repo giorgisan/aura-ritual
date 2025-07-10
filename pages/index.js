@@ -1,4 +1,3 @@
-// pages/index.js
 import { useState } from 'react';
 import Head from 'next/head';
 
@@ -38,6 +37,10 @@ export default function Home() {
     <>
       <Head>
         <title>Aura Ritual</title>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <style>{`
           @keyframes fadeInUp {
             0% { opacity: 0; transform: translateY(20px); }
@@ -47,9 +50,9 @@ export default function Home() {
           body {
             margin: 0;
             padding: 2rem;
-            font-family: 'Helvetica Neue', sans-serif;
-            background-color: #f9f9f9;
-            color: #111;
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            background-color: #111;
+            color: #f2f2f2;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -58,8 +61,8 @@ export default function Home() {
           }
 
           h1 {
-            font-size: 2.5rem;
-            font-weight: 600;
+            font-size: 2.8rem;
+            font-weight: 700;
             margin-bottom: 2rem;
             text-align: center;
             animation: fadeInUp 1s ease-out;
@@ -70,39 +73,48 @@ export default function Home() {
             flex-direction: column;
             gap: 1rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             animation: fadeInUp 1.2s ease-out;
           }
 
           input {
             padding: 0.75rem 1rem;
             font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #1c1c1c;
+            color: #f2f2f2;
             outline: none;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
           }
 
+          input::placeholder {
+            color: #888;
+          }
+
           input:focus {
-            border-color: #555;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+            border-color: #888;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
           }
 
           button {
             padding: 0.75rem 1rem;
             font-size: 1rem;
-            background-color: #111;
-            color: #fff;
+            background-color: #fff;
+            color: #111;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
           }
 
           button:hover {
-            background-color: #333;
+            background-color: #eaeaea;
             transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
           }
 
           .result {
@@ -111,11 +123,15 @@ export default function Home() {
             font-style: italic;
             line-height: 1.6;
             animation: fadeInUp 1.4s ease-out;
+            background-color: #1c1c1c;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
           }
 
           .error {
             margin-top: 2rem;
-            color: #c00;
+            color: #ff6b6b;
             animation: fadeInUp 1.4s ease-out;
           }
         `}</style>
