@@ -1,18 +1,12 @@
+// pages/index.js
 import { useState } from 'react';
 import Head from 'next/head';
 
-const inspirationalQuotes = [
-  "Mir prihaja od znotraj. Ne išči ga zunaj. – Buda",
-  "Tudi to bo minilo. – Perzijski pregovor",
-  "Najgloblje tišine govorijo najglasneje.",
-];
-
 export default function Home() {
-  const [form, setForm] = useState({ mood: '', need: '' });
+  const [form, setForm] = useState({ mood: '', intention: '' });
   const [result, setResult] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [quote, setQuote] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,10 +14,9 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
     setResult('');
-    setQuote('');
+    setError('');
+    setLoading(true);
 
     try {
       const res = await fetch('/api/generate', {
@@ -33,19 +26,14 @@ export default function Home() {
       });
 
       const data = await res.json();
-      setLoading(false);
-
       if (res.ok && data.raw?.choices?.[0]?.message?.content) {
-        const content = data.raw.choices[0].message.content;
-        setResult(content);
-
-        const q = inspirationalQuotes[Math.floor(Math.random() * inspirationalQuotes.length)];
-        setQuote(q);
+        setResult(data.raw.choices[0].message.content);
       } else {
         setError(`Napaka: ${data?.error?.message || 'neznana'}`);
       }
     } catch (err) {
       setError(`Napaka: ${err.message}`);
+    } finally {
       setLoading(false);
     }
   };
@@ -54,21 +42,30 @@ export default function Home() {
     <>
       <Head>
         <title>Aura Ritual</title>
-        <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet" />
         <style>{`
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.6; }
+          }
+
           body {
+            margin: 0;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             background-color: #111;
-            color: #eee;
-            font-family: 'Nunito', sans-serif;
+            color: #f0f0f0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 2rem;
             min-height: 100vh;
+            justify-content: flex-start;
+            padding-top: 5vh;
           }
 
           h1 {
-            font-size: 2.4rem;
+            font-size: 2.75rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
             text-align: center;
           }
 
@@ -77,48 +74,63 @@ export default function Home() {
             flex-direction: column;
             gap: 1rem;
             width: 100%;
-            max-width: 400px;
-            margin: auto;
+            max-width: 420px;
+            background: #1a1a1a;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(255,255,255,0.03);
           }
 
           input {
-            padding: 0.8rem;
+            padding: 0.75rem 1rem;
             font-size: 1rem;
-            border-radius: 6px;
             border: none;
-            background: #222;
+            border-radius: 8px;
+            background: #2a2a2a;
             color: #fff;
+            outline: none;
+          }
+
+          input::placeholder {
+            color: #aaa;
           }
 
           button {
-            padding: 0.8rem;
+            padding: 0.75rem;
+            background-color: #fff;
+            color: #111;
+            font-weight: 600;
             font-size: 1rem;
-            background: #fff;
-            color: #000;
             border: none;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s ease;
+            transition: transform 0.2s ease;
           }
 
           button:hover {
-            background: #ccc;
+            transform: translateY(-2px);
           }
 
-          .loading {
-            text-align: center;
-            font-style: italic;
+          .loader {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0.1;
+            animation: pulse 2.4s infinite;
+            margin: 3rem auto;
           }
 
-          .result {
+          .result, .error {
             margin-top: 2rem;
+            max-width: 600px;
+            line-height: 1.6;
+            font-size: 1.05rem;
             white-space: pre-line;
           }
 
-          .quote {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-            color: #aaa;
-            font-style: italic;
+          .error {
+            color: #f55;
           }
         `}</style>
       </Head>
@@ -127,13 +139,14 @@ export default function Home() {
         <h1>Aura Ritual</h1>
         <form onSubmit={handleSubmit}>
           <input name="mood" placeholder="Kako se počutiš?" onChange={handleChange} required />
-          <input name="need" placeholder="Kaj potrebuješ?" onChange={handleChange} required />
-          <button type="submit">Pridobi ritual</button>
+          <input name="intention" placeholder="Kaj je tvoja današnja namera?" onChange={handleChange} required />
+          <button type="submit" disabled={loading}>
+            {loading ? 'Ustvarjanje...' : 'Pridobi ritual'}
+          </button>
         </form>
 
-        {loading && <div className="loading">✨ Nalagam tvoj ritual ...</div>}
+        {loading && <div className="loader"></div>}
         {result && <div className="result">{result}</div>}
-        {quote && <div className="quote">{quote}</div>}
         {error && <div className="error">{error}</div>}
       </main>
     </>
