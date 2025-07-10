@@ -221,4 +221,20 @@ export default function Home() {
 
         {loading && <div className="loader"></div>}
 
-        {result &
+        {result && (
+          <>
+            <div
+              className="result"
+              dangerouslySetInnerHTML={{ __html: result }}
+            />
+            <button className="copy-btn" onClick={copyQuote}>
+              Kopiraj citat
+            </button>
+          </>
+        )}
+
+        {error && <div className="error">{error}</div>}
+      </main>
+    </>
+  );
+}
